@@ -12,12 +12,11 @@ import (
 
 func main() {
 
-	var resp int
-	inchMap := make([][]int, 1050)
-	searchMap := make(map[string]int)
+	inchMap := make([][]int, 1000)
+	noOverlapingMap := make(map[string]*area)
 
 	for i := 0; i < len(inchMap); i++ {
-		inchMap[i] = make([]int, 1050)
+		inchMap[i] = make([]int, 1000)
 	}
 
 	// open file input
@@ -33,36 +32,58 @@ func main() {
 	// iterate in file opened
 	for scanner.Scan() {
 		line := scanner.Text() // read line
-		area, err := getRectData(line)
+		var area area
+		area, _ = getRectData(line)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-		applyOverlap(inchMap, area)
-		searchMap[area.key] = searchMap[area.key] + 1
+		applyOverlap(inchMap, &area, noOverlapingMap)
+		
 	}
 
 	// iterate in the resulted matrix for count the overlaping
-	resp = 0
-	for i := 0; i < len(inchMap); i++ {
-		for j := 0; j < len(inchMap[i]); j++ {
-			if inchMap[i][j] >= 2 {
-				resp++
+	inches, id := getOverlapingInchesAndNotOverlapingAreadID(inchMap, noOverlapingMap)
+	fmt.Printf("Area not overlaping: " + id + "\n")
+	fmt.Printf("Inches overlaping: " + inches)
+}
+
+// get overlaping inches and not overlaping area id
+func getOverlapingInchesAndNotOverlapingAreadID(
+	inchMap [][]int, 
+	noOverlapingMap map[string] *area) (string, string){
+		resp := 0	
+		var id string
+		var find = false
+		for i := 0; i < len(inchMap); i++ {
+			for j := 0; j < len(inchMap[i]); j++ {
+				if inchMap[i][j] >= 2 {
+					resp++
+				}
+				areaCheck, ok := noOverlapingMap[strconv.Itoa(i) + "-" + strconv.Itoa(j)]
+				if !find && inchMap[i][j] == 1 && ok && !areaCheck.overlap {
+					id = areaCheck.id
+					find = true
+				}
 			}
 		}
-	}
-	fmt.Printf(strconv.Itoa(resp))
+		return strconv.Itoa(resp), id
 }
 
 
 // applyOverlap function for apply the overlap in the specific submatrix
-func applyOverlap(inchMap [][]int, area area) {
+func applyOverlap(inchMap [][]int, area *area, noOverlapingMap map[string]*area) {
 	var resp int
 	for i := area.xDistance; i < (area.xDistance + area.width); i++ {
 		for j := area.yDistance; j < (area.yDistance + area.height); j++ {
 			inchMap[i][j]++
 			if inchMap[i][j] >= 2 {
+				area.overlap = true
+				noOverlapingMap[strconv.Itoa(i) + "-" + strconv.Itoa(j)].overlap = true
 				resp++
+			} 
+			if inchMap[i][j] == 1 {
+				noOverlapingMap[strconv.Itoa(i) + "-" + strconv.Itoa(j)] = area
 			}
 		}	
 	}
@@ -70,7 +91,10 @@ func applyOverlap(inchMap [][]int, area area) {
 
 // getRectData function for transform the line string in a handler struct
 func getRectData(line string) (area, error) {
-	key := strings.Split(line, "@ ")[1]
+	firstSplit := strings.Split(line, " @ ")
+	key := firstSplit[1]
+	id := firstSplit[0][1:]
+
 	auxLine := strings.Split(key, ",")
 	xString, auxLine2 := auxLine[0], auxLine[1]
 	xDistance, errx := strconv.Atoi(xString)
@@ -92,6 +116,8 @@ func getRectData(line string) (area, error) {
 		width: width,
 		height: height,
 		key: key,
+		id: id,
+		overlap: false,
 	}, nil
 }
 
@@ -102,4 +128,6 @@ type area struct {
 	width int
 	height int
 	key string
+	id string
+	overlap bool
 }
