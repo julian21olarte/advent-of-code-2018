@@ -10,12 +10,14 @@ import (
 	_ "errors"
 	"time"
 	"sort"
+	timeTracker "adventofcode/util"
 )
 	
 const timeFormat string = "2006-01-02 15:04"
 
 func main() {
 
+	defer timeTracker.TimeTrack(time.Now())
 	var linesArray []*LineData
 	var guardsArray []*GuardData
 	guardsMap := make(map[string] *GuardData)
@@ -47,6 +49,10 @@ func main() {
 	var guardMostSleep *GuardData // guard that most sleep
 	guardMostSleepMinute := -1 // minute when the most sleep guard was sleep
 	maxMinute := -1 // number of times that the guar was sleep in the mostSleepMinute
+	maxMinuteOfGuard := -1
+	minuteMostSleepOfGuard := -1
+	var guardWithMinuteMostSleep *GuardData
+
 	sleepMinute := 0
 
 	for _, line := range linesArray {
@@ -66,25 +72,37 @@ func main() {
 			sleepMinute = min
 		}
 		if line.text[0:1] == "w" {
-				currentMinute := mapMinutesInGuardData(currentGuardData, sleepMinute, min)
+				currentMinute, maxMinuteOfCurrentGuard := mapMinutesInGuardData(currentGuardData, sleepMinute, min)
 				if currentGuardData.sleepMinutes > maxMinute {
 					maxMinute = currentGuardData.sleepMinutes
 					guardMostSleepMinute = currentMinute
 					guardMostSleep = currentGuardData
 				}
+				if maxMinuteOfCurrentGuard > maxMinuteOfGuard {
+					maxMinuteOfGuard = maxMinuteOfCurrentGuard
+					guardWithMinuteMostSleep = currentGuardData
+					minuteMostSleepOfGuard = currentMinute
+				}
 		}
 	}
-	idNumber, err := strconv.Atoi(guardMostSleep.id)
+	printResponse("1", guardMostSleep.id, guardMostSleepMinute)
+	printResponse("2", guardWithMinuteMostSleep.id, minuteMostSleepOfGuard)
+}
+
+// print a response
+func printResponse(part string, id string, minute int) {
+	fmt.Printf("PART %s\n", part)
+	fmt.Printf("GuardID: %s\n", id)
+	fmt.Printf("minute: %d\n", minute)
+	idNumber, err := strconv.Atoi(id)
 	if err != nil {
 		log.Fatal("Error parsing the id")
 	}
-	fmt.Printf("GuardID: " + guardMostSleep.id + "\n")
-	fmt.Printf("minute: " + strconv.Itoa(guardMostSleepMinute) + "\n")
-	fmt.Printf("Response: " + strconv.Itoa(guardMostSleepMinute * idNumber))
+	fmt.Printf("Response: %d\n", minute * idNumber)
 }
 
-
-func mapMinutesInGuardData(guardData *GuardData, sleep int, wake int) int {
+// map the minutes readed int the respective guard minutes map
+func mapMinutesInGuardData(guardData *GuardData, sleep int, wake int) (int, int) {
 	var max = -1
 	var minute = -1
 	for i := sleep; i < wake; i++ {
@@ -95,9 +113,10 @@ func mapMinutesInGuardData(guardData *GuardData, sleep int, wake int) int {
 			minute = i
 		}
 	}
-	return minute
+	return minute, max
 }
 
+// create a new line date from the input line readed
 func getLineData(line string) (LineData, error) {
 	timeString := line[1:17]
 	time, err := time.Parse(timeFormat, timeString)
@@ -112,6 +131,7 @@ func getLineData(line string) (LineData, error) {
 	}, nil
 }
 
+// create a new Guard data from the line data
 func getGuardData(line *LineData) GuardData  {
 	guardID := strings.Split(strings.Split(line.text, "#")[1], " ")[0]
 	return GuardData {
