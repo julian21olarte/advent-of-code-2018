@@ -32,6 +32,7 @@ func main() {
 	fmt.Printf("%d\n", len(resp))
 }
 
+// replacePolymer function to search adjacent polymers that react and delete there ('c' with 'C' react, but 'C' with 'C' not react)
 func replacePolymer(line string) string {
 	var stack []string
 	for i := 0; i < len(line); i++ {
@@ -56,6 +57,7 @@ func replacePolymer(line string) string {
 	return strings.Join(stack, "")
 }
 
+// reactPolymers function to check if 2 polymers react
 func reactPolymers(a string, b string) bool {
 	if a != b && strings.ToLower(a) == strings.ToLower(b) {
 		return true
