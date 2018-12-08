@@ -5,11 +5,8 @@ import (
 	"log"
 	"bufio"
 	"os"
-	_ "strconv"
 	"strings"
-	_ "errors"
 	"time"
-	_	"github.com/golang-collections/collections/stack"
 	timeTracker "adventofcode/util"
 )
 
@@ -27,17 +24,44 @@ func main() {
 	// iterate in file opened	
 	scanner.Scan()
 	line := scanner.Text() // read line
-	resp := replacePolymer(line)
-	//fmt.Printf("%s\n", resp)
-	fmt.Printf("%d\n", len(resp))
+	resp1 := replacePolymer(line)
+	_, resp2 := deleteMaxCountPolymer(&line)
+	fmt.Printf("Response 1: %d\n", len(resp1))
+	fmt.Printf("Response 2: %d\n", resp2)
+}
+
+func deleteMaxCountPolymer(line *string) (string, int) {
+	polymer := ""
+	countPolymer := 60000
+	mapPolymers := make(map[string]int)
+	for i := 0; i < len(*line); i++ {
+		auxPolymer := strings.ToLower(string((*line)[i]))
+		_, ok := mapPolymers[auxPolymer]
+		if !ok {
+			auxCount := getLenReplaceIgnoreCase(*line, auxPolymer)
+			mapPolymers[auxPolymer] = auxCount
+			if auxCount < countPolymer {
+				countPolymer = auxCount
+				polymer = auxPolymer
+			}
+		}
+	}
+	return polymer, countPolymer
+}
+
+// get the length of string after replaced ignored case polymer
+func getLenReplaceIgnoreCase(line string, polymer string) int {
+	line = strings.Replace(line, strings.ToLower(polymer), "", -1)
+	line = strings.Replace(line, strings.ToUpper(polymer), "", -1)
+	resp := replacePolymer(line)	
+	return len(resp)
 }
 
 // replacePolymer function to search adjacent polymers that react and delete there ('c' with 'C' react, but 'C' with 'C' not react)
-func replacePolymer(line string) string {
+func replacePolymer(line string) (string) {
 	var stack []string
 	for i := 0; i < len(line); i++ {
 		lenght := len(stack) - 1
-
 		if len(stack) > 0 && reactPolymers(string(stack[lenght]), string(line[i])) {
 			stack = stack[:lenght]
 			for (len(stack) > 0) && (i < len(line) - 1) {

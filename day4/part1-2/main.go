@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	_ "errors"
 	"time"
 	"sort"
 	timeTracker "adventofcode/util"
