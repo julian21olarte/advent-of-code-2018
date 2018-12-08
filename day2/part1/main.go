@@ -14,7 +14,7 @@ func main() {
 	var two, three int
 
 	// open file input
-	file, err := os.Open("./../../inputs/day2-12.txt")
+	file, err := os.Open("./../../inputs/day2.txt")
 	if err != nil {
 			log.Fatal(err)
 	}

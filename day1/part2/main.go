@@ -15,7 +15,7 @@ func main() {
 	intMap := make(map[int]int)
 
 	// open file input
-	file, err := os.Open("./../../inputs/day1-12.txt")
+	file, err := os.Open("./../../inputs/day1.txt")
     if err != nil {
         log.Fatal(err)
     }

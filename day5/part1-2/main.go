@@ -14,7 +14,7 @@ func main() {
 
 	defer timeTracker.TimeTrack(time.Now())
 
-	file, err := os.Open("./../../inputs/day5-12.txt") // open file input
+	file, err := os.Open("./../../inputs/day5.txt") // open file input
 	if err != nil {
 			log.Fatal(err)
 	}

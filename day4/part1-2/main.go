@@ -20,7 +20,7 @@ func main() {
 	var linesArray []*LineData
 	var guardsArray []*GuardData
 	guardsMap := make(map[string] *GuardData)
-	file, err := os.Open("./../../inputs/day4-12.txt") // open file input
+	file, err := os.Open("./../../inputs/day4.txt") // open file input
 	if err != nil {
 			log.Fatal(err)
 	}
