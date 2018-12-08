@@ -62,12 +62,12 @@ func replacePolymer(line string) (string) {
 	var stack []string
 	for i := 0; i < len(line); i++ {
 		lenght := len(stack) - 1
-		if len(stack) > 0 && reactPolymers(string(stack[lenght]), string(line[i])) {
+		if len(stack) > 0 && checkIfReactPolymers(string(stack[lenght]), string(line[i])) {
 			stack = stack[:lenght]
 			for (len(stack) > 0) && (i < len(line) - 1) {
 				i++
 				pop := stack[len(stack) - 1]
-				if reactPolymers(pop, string(line[i])) {
+				if checkIfReactPolymers(pop, string(line[i])) {
 					stack = stack[:len(stack) - 1]
 				} else {
 					stack = append(stack, string(line[i]))
@@ -81,8 +81,8 @@ func replacePolymer(line string) (string) {
 	return strings.Join(stack, "")
 }
 
-// reactPolymers function to check if 2 polymers react
-func reactPolymers(a string, b string) bool {
+// checkIfReactPolymers function to check if 2 polymers react
+func checkIfReactPolymers(a string, b string) bool {
 	if a != b && strings.ToLower(a) == strings.ToLower(b) {
 		return true
 	}
