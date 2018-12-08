@@ -32,7 +32,7 @@ func main() {
 
 func deleteMaxCountPolymer(line *string) (string, int) {
 	polymer := ""
-	countPolymer := 60000
+	countPolymer := len(*line)
 	mapPolymers := make(map[string]int)
 	for i := 0; i < len(*line); i++ {
 		auxPolymer := strings.ToLower(string((*line)[i]))
