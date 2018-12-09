@@ -44,9 +44,9 @@ func main() {
 
 	fillBoard(&board, &coordArray)
 	fmt.Printf("response 1: %d\n", getMaxArea(&board))
-	//fmt.Print(infinites)
 }
 
+// getMaxArea function to get the max area of not infinite coord in the board
 func getMaxArea(board *[][]int) int {
 	infinites := getInfinites(board)
 	maxMap := make(map[int]int)
