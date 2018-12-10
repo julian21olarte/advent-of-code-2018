@@ -11,6 +11,7 @@ import (
 	"math"
 	timeTracker "adventofcode/util"
 )
+const maxArea int = 10000
 
 func main() {
 
@@ -42,8 +43,9 @@ func main() {
 		board[i] = make([]int, y + 2)
 	}
 
-	fillBoard(&board, &coordArray)
+	secureArea := fillBoard(&board, &coordArray)
 	fmt.Printf("response 1: %d\n", getMaxArea(&board))
+	fmt.Printf("response 2: %d\n", secureArea)
 }
 
 // getMaxArea function to get the max area of not infinite coord in the board
@@ -53,24 +55,31 @@ func getMaxArea(board *[][]int) int {
 	var max int
 	for i := 0; i < len(*board); i++ {
 		for j := 0; j < len((*board)[i]); j++ {
-			_, ok := infinites[(*board)[i][j]]
-			if !ok && (*board)[i][j] != -1 {
-				maxMap[(*board)[i][j]]++
+			pos := (*board)[i][j]
+			_, ok := infinites[pos]
+			if !ok && pos != -1 {
+				maxMap[pos]++
 			}
-			if maxMap[(*board)[i][j]] > max {
-				max = maxMap[(*board)[i][j]]
+			if maxMap[pos] > max {
+				max = maxMap[pos]
 			}
 		}	
 	}
 	return max
 }
 // fillBoard function to fill the board with the index of coords in area
-func fillBoard(board *[][]int, coords *[]Coord) {
+func fillBoard(board *[][]int, coords *[]Coord) int {
+	var sumDistance int
+	var accumulateSum int
 	for i := 0; i < len(*board); i++ {
 		for j := 0; j < len((*board)[i]); j++ {
-			(*board)[i][j] = markCoord(coords, i, j)
+			(*board)[i][j], sumDistance = markCoord(coords, i, j) // get the sum area inner current coord and the others all coords
+			if sumDistance < maxArea {
+				accumulateSum++
+			}
 		}	
 	}
+	return accumulateSum
 }
 
 // getInfinites function to get a map with the index of infinites coords
@@ -87,14 +96,16 @@ func getInfinites(board *[][]int) map[int]bool {
 }
 
 // markCoord function to mark in the board the specific coord
-func markCoord(coords *[]Coord, x int, y int) int {
+func markCoord(coords *[]Coord, x int, y int) (int, int) {
 	aux := 10000
 	auxIndex := 0
+	accumulateSum := 0
 	var duplicate bool
 	for index, coord := range *coords {
 		auxX := int(math.Abs(float64(coord.x - x)))
 		auxY := int(math.Abs(float64(coord.y - y)))
 		sum := auxX + auxY
+		accumulateSum += sum
 		if sum < aux {
 			aux = sum
 			auxIndex = index
@@ -104,9 +115,9 @@ func markCoord(coords *[]Coord, x int, y int) int {
 		}
 	}
 	if duplicate {
-		return -1
+		return -1, accumulateSum
 	}
-	return auxIndex
+	return auxIndex, accumulateSum
 }
 
 // getCoord func to create a new Coord struct
